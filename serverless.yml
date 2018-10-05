@@ -5,8 +5,12 @@ provider:
   runtime: nodejs8.10
 
 functions:
-  sync:
-    handler: src/handler.sync
+  post:
+    handler: src/handler.post
+  remove:
+    handler: src/handler.remove
+  update:
+    handler: src/handler.update
     events:
       - s3:
         bucket: ${env:AWS_S3_BUCKET}
