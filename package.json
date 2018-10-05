@@ -1,0 +1,38 @@
+{
+  "name": "@media-network/s3-sync",
+  "version": "0.0.1",
+  "description": "Sync objects in S3 into ElasticSearch or Mongo in serverless way.",
+  "main": "src/handler.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/media-network/media-s3-sync.git"
+  },
+  "keywords": [
+    "serverless",
+    "s3",
+    "aws"
+  ],
+  "author": "LongLH <d@dapps.me>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/media-network/media-s3-sync/issues"
+  },
+  "homepage": "https://github.com/media-network/media-s3-sync#readme",
+  "dependencies": {
+    "elasticsearch": "15.1.1",
+    "serialize-error": "2.1.0"
+  },
+  "devDependencies": {
+    "babel-loader": "8.0.4",
+    "babel-plugin-transform-runtime": "6.23.0",
+    "babel-preset-env": "1.7.0",
+    "babel-preset-stage-2": "6.24.1",
+    "run.env": "1.1.0",
+    "serverless": "1.32.0",
+    "serverless-webpack": "5.2.0",
+    "webpack": "4.20.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}

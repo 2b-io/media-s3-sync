@@ -1,0 +1,20 @@
+service: media-s3-sync
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+
+functions:
+  sync:
+    handler: src/handler.sync
+    events:
+      - s3:
+        bucket: ${env:AWS_S3_BUCKET}
+        event: s3:ObjectCreated:*
+
+plugins:
+  - serverless-webpack
+
+custom:
+  webpack:
+    webpackConfig: internals/webpack.config.js
