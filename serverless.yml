@@ -5,20 +5,31 @@ provider:
   runtime: nodejs8.10
 
 functions:
-  post:
+  create:
     handler: src/handler.post
-  remove:
-    handler: src/handler.remove
-  update:
-    handler: src/handler.update
     events:
       - s3:
         bucket: ${env:AWS_S3_BUCKET}
         event: s3:ObjectCreated:*
+  remove:
+    handler: src/handler.remove
+  update:
+    handler: src/handler.update
+  migrate:
+    handler: src/handler.migrate
+    events:
+      - http:
+          path: /migration
+          method: post
 
 plugins:
   - serverless-webpack
+  - serverless-offline
 
 custom:
+  serverless-offline:
+    port: 3010
+    host: 0.0.0.0
+    
   webpack:
     webpackConfig: internals/webpack.config.js
