@@ -28,7 +28,7 @@ export default {
       id: id || null
     })
   },
-  async initMapping(index, type, params) {
+  async initMapping({ index, type, params }) {
     const indexExists = await elastic.indices.exists({ index })
 
     if (indexExists) {

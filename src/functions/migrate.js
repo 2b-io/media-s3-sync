@@ -77,7 +77,7 @@ async function fetchPage ({ bucket, prefix, maxKeys, nextToken }) {
 export default async (event, respond) => {
 
   const { bucket, prefix } = JSON.parse(event.body)
-  await elastic.initMapping("media", "media", mediaMapping)
+  await elastic.initMapping({ index: "media", type: "media", params: mediaMapping })
 
   try {
     await fetchPage({ bucket, prefix, maxKeys: 10 })
