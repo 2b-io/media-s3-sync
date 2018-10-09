@@ -24,9 +24,17 @@ export default {
     })
   },
   async initMapping(index, type, body) {
-    await client.indices.create({
-      index
+
+    const indexExists = await elastic.indices.exists({
+        index
     })
+
+    if (!indexExists) {
+      await elastic.indices.create({
+        index
+      })
+    }
+
     return await elastic.indices.putMapping({
         index,
         type,
