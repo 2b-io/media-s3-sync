@@ -1,44 +1,54 @@
 import elastic from 'infrastructure/elasticsearch'
 
 export default {
-  async create(params) {
-    const {
-      index = 'media',
-      contentType,
-      key,
-      Metadata,
-      ETag,
-      LastModified,
-      ContentLength
-    } = params
-    return await elastic.create({
+  async update({ index, type, id, params }) {
+    return await elastic.update({
       index,
-      type: 'image/jpeg',
-      id: key,
+      type,
+      id,
       body: {
-        originUrl: Metadata['origin-url'],
-        ETag,
-        LastModified,
-        ContentLength
+        ...params
       }
     })
   },
-  async initMapping(index, type, body) {
-
-    const indexExists = await elastic.indices.exists({
-        index
+  async create({ index, type, id, params }) {
+    return await elastic.create({
+      index,
+      type,
+      id,
+      body: {
+        ...params
+      }
     })
+  },
+  async checkExists({ index, type, id }){
+    return await elastic.exists({
+      index: index || null,
+      type: type || null,
+      id: id || null
+    })
+  },
+  async initMapping(index, type, params) {
+    const indexExists = await elastic.indices.exists({ index })
 
-    if (!indexExists) {
-      await elastic.indices.create({
-        index
-      })
+    if (indexExists) {
+      return
     }
 
-    return await elastic.indices.putMapping({
-        index,
-        type,
-        body
+    await elastic.indices.create({
+      index
     })
+
+    const mapping = await elastic.indices.putMapping({
+      index: index,
+      type: type,
+      body: {
+        properties: {
+          ...params
+        }
+      }
+    })
+
+    return mapping
   }
 }

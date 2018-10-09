@@ -1,15 +1,98 @@
 import elastic from 'services/elastic'
 import mediaMapping from 'mapping/media'
 import media from 'services/media'
+import s3 from 'infrastructure/s3'
 
-export default async () => {
-  await elastic.initMapping('media', 'media', mediaMapping)
-  const listObjects = await media.list()
-  const listData = await Promise.all(listObjects.map((object) => {
-    return media.head(object)
-  }))
-  return await listData.map((data) => {
-    elastic.create(data)
-  })
+async function fetchPage ({ bucket, prefix, maxKeys, nextToken }) {
+
+  const params = {
+    Bucket: bucket,
+    Prefix: prefix || null,
+    MaxKeys: maxKeys,
+    ContinuationToken: nextToken || null
+  }
+
+  const {
+    Contents,
+    NextContinuationToken,
+    IsTruncated
+  } = await s3.listObjectsV2(params).promise()
+
+  await Contents.reduce(
+    async (previousJob, file) => {
+      await previousJob
+
+      console.log('PUSH_FILE -> ', file.Key)
+
+      const object = await s3.headObject({
+        Bucket: bucket,
+        Key: file.Key
+      }).promise()
+
+      const params = {
+        lastModified: object.LastModified,
+        contentLength: object.ContentLength,
+        eTag: object.ETag,
+        contentType: object.ContentType,
+        key: file.Key,
+        originUrl: object.Metadata && object.Metadata['origin-url'] || null
+      }
+
+      const fileExists = await elastic.checkExists({
+        index: 'media',
+        type: 'media',
+        id: file.Key
+      })
+
+      if (fileExists) {
+        await elastic.update({
+          index: 'media',
+          type: 'media',
+          id: file.Key,
+          params
+        })
+      }else {
+        await elastic.create({
+          index: 'media',
+          type: 'media',
+          id: file.Key,
+          params
+        })
+      }
+
+    },
+    Promise.resolve()
+  )
+
+  if (IsTruncated) {
+    return await fetchPage({ bucket, prefix, maxKeys, NextContinuationToken })
+  } else {
+    console.log('FINISH')
+    return true
+  }
+}
+
+
+export default async (event, respond) => {
+
+  const { bucket, prefix } = JSON.parse(event.body)
+  await elastic.initMapping("media", "media", mediaMapping)
+
+  try {
+    await fetchPage({ bucket, prefix, maxKeys: 10 })
+    return {
+      status: 200,
+      body: JSON.stringify({
+        message: "success"
+      })
+    }
+  } catch (error) {
+    return {
+      status: 500,
+      body: JSON.stringify({
+        message: `Error push ${ error }`
+      })
+    }
+  }
 
 }
