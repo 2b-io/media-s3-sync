@@ -1,7 +1,8 @@
-import elastic from 'services/elastic'
 import mediaMapping from 'mapping/media'
-import media from 'services/media'
 import s3 from 'infrastructure/s3'
+import media from 'services/media'
+import elastic from 'services/elastic'
+
 
 async function fetchPage ({ bucket, prefix, maxKeys, nextToken }) {
 
