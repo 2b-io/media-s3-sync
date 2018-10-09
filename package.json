@@ -19,20 +19,25 @@
   },
   "homepage": "https://github.com/media-network/media-s3-sync#readme",
   "dependencies": {
+    "aws-sdk": "^2.329.0",
     "elasticsearch": "15.1.1",
     "serialize-error": "2.1.0"
   },
   "devDependencies": {
-    "babel-loader": "8.0.4",
+    "babel-loader": "7.1.5",
     "babel-plugin-transform-runtime": "6.23.0",
     "babel-preset-env": "1.7.0",
     "babel-preset-stage-2": "6.24.1",
-    "run.env": "1.1.0",
-    "serverless": "1.32.0",
+    "babel-register": "6.26.0",
+    "run.env": "1.0.2",
+    "serverless": "1.30.0",
+    "serverless-offline": "3.25.7",
     "serverless-webpack": "5.2.0",
-    "webpack": "4.20.2"
+    "webpack": "4.16.5",
+    "webpack-node-externals": "1.7.2"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "run.env serverless offline start"
   }
 }
