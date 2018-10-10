@@ -14,14 +14,14 @@ export default async (event) => {
     })
 
     if (fileExists) {
-      await elastic.update({
+      return await elastic.update({
         index: 'media',
         type: 'media',
         id: key,
         params
       })
     }else {
-      await elastic.create({
+      return await elastic.create({
         index: 'media',
         type: 'media',
         id: key,

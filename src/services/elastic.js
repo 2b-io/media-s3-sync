@@ -2,31 +2,46 @@ import elastic from 'infrastructure/elasticsearch'
 
 export default {
   async update({ index, type, id, params }) {
-    return await elastic.update({
-      index,
-      type,
-      id,
-      body: {
-        ...params
-      }
-    })
+    try {
+      return await elastic.update({
+        index,
+        type,
+        id,
+        body: {
+          ...params
+        }
+      })
+    } catch (error) {
+      throw error
+      return null
+    }
   },
   async remove({ index, type, id }) {
-    return await elastic.delete({
-      index,
-      type,
-      id
-    })
+    try {
+      return await elastic.delete({
+        index,
+        type,
+        id
+      })
+    } catch (e) {
+      throw error
+      return null
+    }
   },
   async create({ index, type, id, params }) {
-    return await elastic.create({
-      index,
-      type,
-      id,
-      body: {
-        ...params
-      }
-    })
+    try {
+      return await elastic.create({
+        index,
+        type,
+        id,
+        body: {
+          ...params
+        }
+      })
+    } catch (error) {
+      throw error
+      return null
+    }
   },
   async checkExists({ index, type, id }){
     return await elastic.exists({
