@@ -7,19 +7,22 @@ provider:
     - Effect: Allow
       Action:
         - s3:*
-      Resource: "*"
+      Resource:
+        Fn::Join:
+           - ""
+           - - "arn:aws:s3:::env:AWS_S3_BUCKET or *"
 functions:
   create:
     handler: src/handler.create
     events:
       - s3:
-        bucket: media-sync-dev
+        bucket: ${env:AWS_S3_BUCKET}
         event: s3:ObjectCreated:*
   remove:
     handler: src/handler.remove
     events:
       - s3:
-        bucket: media-sync-dev
+        bucket: ${env:AWS_S3_BUCKET}
         event: s3:ObjectRemoved:*
   migrate:
     handler: src/handler.migrate

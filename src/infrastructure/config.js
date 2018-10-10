@@ -7,6 +7,6 @@ export default {
       accessKeyId: process.env.AWS_S3_ACCESS_KEY_ID,
       secretAccessKey: process.env.AWS_S3_SECRET_ACCESS_KEY
     },
-    elastic: process.env.AWS_ELASTIC
+    elasticSearch: process.env.AWS_ELASTIC_SEARCH
   }
 }

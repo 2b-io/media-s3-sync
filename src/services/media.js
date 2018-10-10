@@ -9,9 +9,9 @@ export default {
     }).promise()
   },
   async list(params) {
-  return await s3.listObjectsV2({
-    Bucket: config.aws.s3.bucket,
-    ...params
+    return await s3.listObjectsV2({
+      Bucket: config.aws.s3.bucket,
+      ...params
     }).promise()
   }
 }
