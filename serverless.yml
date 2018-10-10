@@ -31,6 +31,7 @@ functions:
 plugins:
   - serverless-webpack
   - serverless-offline
+  - serverless-plugin-existing-s3
 
 custom:
   serverless-offline:

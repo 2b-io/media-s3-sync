@@ -1,5 +1,5 @@
 import formatParams from './format-params'
-import media from ',/services/media'
+import media from 'services/media'
 import elastic from 'services/elastic'
 
 export default async (event) => {
