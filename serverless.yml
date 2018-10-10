@@ -3,18 +3,24 @@ service: media-s3-sync
 provider:
   name: aws
   runtime: nodejs8.10
-
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:*
+      Resource: "*"
 functions:
   create:
-    handler: src/handler.post
+    handler: src/handler.create
     events:
       - s3:
-        bucket: ${env:AWS_S3_BUCKET}
+        bucket: media-sync-dev
         event: s3:ObjectCreated:*
   remove:
     handler: src/handler.remove
-  update:
-    handler: src/handler.update
+    events:
+      - s3:
+        bucket: media-sync-dev
+        event: s3:ObjectRemoved:*
   migrate:
     handler: src/handler.migrate
     events:

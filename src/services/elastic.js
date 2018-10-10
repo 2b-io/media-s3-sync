@@ -11,6 +11,13 @@ export default {
       }
     })
   },
+  async remove({ index, type, id }) {
+    return await elastic.delete({
+      index,
+      type,
+      id
+    })
+  },
   async create({ index, type, id, params }) {
     return await elastic.create({
       index,
