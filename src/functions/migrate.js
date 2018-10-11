@@ -5,7 +5,7 @@ import mediaMapping from 'mapping/media'
 import media from 'services/media'
 import elasticSearch from 'services/elastic-search'
 
-async function fetchPage({ bucket, prefix, maxKeys, nextToken }) {
+const fetchPage = async ({ bucket, prefix, maxKeys, nextToken }) => {
   const params = {
     Bucket: bucket,
     Prefix: prefix || null,
