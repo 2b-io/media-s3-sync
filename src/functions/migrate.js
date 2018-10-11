@@ -59,8 +59,8 @@ async function fetchPage({ bucket, prefix, maxKeys, nextToken }) {
 export default async (event, respond) => {
   const { bucket, prefix } = JSON.parse(event.body)
   await elasticSearch.initMapping({
-    index: "media",
-    type: "media",
+    index: 'media',
+    type: 'media',
     params: mediaMapping
   })
 
