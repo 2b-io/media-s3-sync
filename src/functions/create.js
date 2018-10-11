@@ -9,8 +9,8 @@ export default async (event) => {
   if (event.Records.length) {
     try {
       await elasticSearch.initMapping({
-        index: "media",
-        type: "media",
+        index: 'media',
+        type: 'media',
         params: mediaMapping
       })
       const { key } = event.Records[0].s3.object
