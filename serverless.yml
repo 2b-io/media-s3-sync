@@ -10,20 +10,22 @@ provider:
       Resource:
         Fn::Join:
            - ""
-           - - "arn:aws:s3:::env:AWS_S3_BUCKET or *"
+           - - "arn:aws:s3:::${env:AWS_S3_BUCKET}"
 functions:
   create:
     handler: src/handler.create
     events:
-      - s3:
+      - existingS3:
         bucket: ${env:AWS_S3_BUCKET}
-        event: s3:ObjectCreated:*
+        events:
+          - s3:ObjectCreated:*
   remove:
     handler: src/handler.remove
     events:
-      - s3:
+      - existingS3:
         bucket: ${env:AWS_S3_BUCKET}
-        event: s3:ObjectRemoved:*
+        events:
+          - s3:ObjectRemoved:*
   migrate:
     handler: src/handler.migrate
     events:
