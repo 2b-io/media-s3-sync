@@ -1,4 +1,5 @@
 const slsw = require('serverless-webpack')
+const webpack = require('webpack')
 
 module.exports = {
   entry: slsw.lib.entries,
@@ -7,6 +8,9 @@ module.exports = {
   mode: slsw.lib.webpack.isLocal ? 'development' : 'production',
   externals: [
     /aws-sdk/
+  ],
+  plugins: [
+    new webpack.DefinePlugin({ "global.GENTLY": false })
   ],
   module: {
     rules: [

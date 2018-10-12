@@ -3,18 +3,43 @@ service: media-s3-sync
 provider:
   name: aws
   runtime: nodejs8.10
-
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:*
+      Resource:
+        Fn::Join:
+           - ""
+           - - "arn:aws:s3:::env:AWS_S3_BUCKET or *"
 functions:
-  sync:
-    handler: src/handler.sync
+  create:
+    handler: src/handler.create
     events:
       - s3:
         bucket: ${env:AWS_S3_BUCKET}
         event: s3:ObjectCreated:*
+  remove:
+    handler: src/handler.remove
+    events:
+      - s3:
+        bucket: ${env:AWS_S3_BUCKET}
+        event: s3:ObjectRemoved:*
+  migrate:
+    handler: src/handler.migrate
+    events:
+      - http:
+          path: /migration
+          method: post
 
 plugins:
   - serverless-webpack
+  - serverless-offline
+  - serverless-plugin-existing-s3
 
 custom:
+  serverless-offline:
+    port: 3010
+    host: 0.0.0.0
+
   webpack:
     webpackConfig: internals/webpack.config.js
