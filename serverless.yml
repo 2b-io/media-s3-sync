@@ -10,26 +10,51 @@ provider:
       Resource:
         Fn::Join:
            - ""
-           - - "arn:aws:s3:::env:AWS_S3_BUCKET or *"
+           - - "arn:aws:s3:::env:${env:AWS_S3_BUCKET}"
 functions:
   create:
     handler: src/handler.create
     events:
-      - s3:
-        bucket: ${env:AWS_S3_BUCKET}
-        event: s3:ObjectCreated:*
+      - existingS3:
+          bucket: ${env:AWS_S3_BUCKET}
+          events:
+            - s3:ObjectCreated:*
+    environment:
+      AWS_S3_ACCESS_KEY_ID: ${env:AWS_S3_ACCESS_KEY_ID}
+      AWS_S3_SECRET_ACCESS_KEY: ${env:AWS_S3_SECRET_ACCESS_KEY}
+      AWS_S3_BUCKET: ${env:AWS_S3_BUCKET}
+      AWS_S3_REGION: ${env:AWS_S3_REGION}
+      AWS_ELASTIC_SEARCH: ${env:AWS_ELASTIC_SEARCH}
+      VERSION: ${env:VERSION}
+
   remove:
     handler: src/handler.remove
     events:
-      - s3:
-        bucket: ${env:AWS_S3_BUCKET}
-        event: s3:ObjectRemoved:*
+      - existingS3:
+          bucket: ${env:AWS_S3_BUCKET}
+          events:
+            - s3:ObjectRemoved:*
+    environment:
+      AWS_S3_ACCESS_KEY_ID: ${env:AWS_S3_ACCESS_KEY_ID}
+      AWS_S3_SECRET_ACCESS_KEY: ${env:AWS_S3_SECRET_ACCESS_KEY}
+      AWS_S3_BUCKET: ${env:AWS_S3_BUCKET}
+      AWS_S3_REGION: ${env:AWS_S3_REGION}
+      AWS_ELASTIC_SEARCH: ${env:AWS_ELASTIC_SEARCH}
+      VERSION: ${env:VERSION}
+
   migrate:
     handler: src/handler.migrate
     events:
       - http:
           path: /migration
           method: post
+    environment:
+      AWS_S3_ACCESS_KEY_ID: ${env:AWS_S3_ACCESS_KEY_ID}
+      AWS_S3_SECRET_ACCESS_KEY: ${env:AWS_S3_SECRET_ACCESS_KEY}
+      AWS_S3_BUCKET: ${env:AWS_S3_BUCKET}
+      AWS_S3_REGION: ${env:AWS_S3_REGION}
+      AWS_ELASTIC_SEARCH: ${env:AWS_ELASTIC_SEARCH}
+      VERSION: ${env:VERSION}
 
 plugins:
   - serverless-webpack
