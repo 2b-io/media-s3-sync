@@ -9,7 +9,7 @@ export default async (event) => {
         await previousJob
         const { key } = file.s3.object
         try {
-          await elasticSearch.remove({ id: key })
+          return await elasticSearch.remove({ id: key })
         } catch (error) {
           return { statusCode: 500, body: serializeError(error) }
         }

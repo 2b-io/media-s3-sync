@@ -17,14 +17,13 @@ export default async (event) => {
             params: mediaMapping
           })
           const s3Object = await media.head({
-            bucket: config.aws.s3.bucket,
             key
           })
           const params = formatParams({
             s3Object,
             key
           })
-          await elasticSearch.createOrUpdate({
+          return await elasticSearch.createOrUpdate({
             id: key,
             params
           })
