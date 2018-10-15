@@ -5,9 +5,8 @@ import mediaMapping from 'mapping/media'
 import media from 'services/media'
 import elasticSearch from 'services/elastic-search'
 
-const fetchPage = async ({ bucket, prefix, maxKeys, nextToken }) => {
+const fetchPage = async ({ prefix, maxKeys, nextToken }) => {
   const params = {
-    Bucket: bucket,
     Prefix: prefix || null,
     MaxKeys: maxKeys,
     ContinuationToken: nextToken || null
@@ -16,36 +15,30 @@ const fetchPage = async ({ bucket, prefix, maxKeys, nextToken }) => {
     Contents,
     NextContinuationToken: _nextToken,
     IsTruncated
-  } = await media.list({ bucket, params })
+  } = await media.list({ params })
 
   await Contents.reduce(
     async (previousJob, file) => {
       await previousJob
-      console.log('PUSH_FILE -> ', file.Key)
+      const { Key: key } = file
+      console.log('PUSH_FILE -> ', key)
 
       try {
-        const s3Object = await media.head({
-          bucket,
-          key: file.Key
-        })
-        const params = formatParams({ s3Object, key: file.Key })
+        const s3Object = await media.head({ key })
+        const paramsElasticSearch = formatParams({ s3Object, key })
         await elasticSearch.createOrUpdate({
-          index: 'media',
-          type: 'media',
-          id: file.Key,
-          params
+          id: key,
+          params: paramsElasticSearch
         })
       } catch (error) {
         console.log(serializeError(error))
       }
-
     },
     Promise.resolve()
   )
 
   if (IsTruncated) {
     return await fetchPage({
-      bucket,
       prefix,
       maxKeys,
       nextToken: _nextToken
@@ -57,15 +50,13 @@ const fetchPage = async ({ bucket, prefix, maxKeys, nextToken }) => {
 }
 
 export default async (event, respond) => {
-  const { bucket, prefix } = JSON.parse(event.body)
+  const { prefix } = JSON.parse(event.body)
   await elasticSearch.initMapping({
-    index: 'media',
-    type: 'media',
     params: mediaMapping
   })
 
   try {
-    await fetchPage({ bucket, prefix, maxKeys: 10 })
+    await fetchPage({ prefix, maxKeys: 10 })
     return {
       statusCode: 200,
       body: JSON.stringify({
@@ -78,5 +69,4 @@ export default async (event, respond) => {
       body: serializeError(error)
     }
   }
-
 }

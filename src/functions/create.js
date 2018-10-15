@@ -11,21 +11,20 @@ export default async (event) => {
     await event.Records.reduce(
       async (previousJob, file) => {
         await previousJob
+        const { key } = file.s3.object
         try {
           await elasticSearch.initMapping({
-            index: 'media',
-            type: 'media',
             params: mediaMapping
           })
           const s3Object = await media.head({
-            bucket: config.aws.s3.bucket,
-            key: file.s3.object.key
+            key
           })
-          const params = formatParams({ s3Object, key: file.s3.object.key })
-          await elasticSearch.createOrUpdate({
-            index: 'media',
-            type: 'media',
-            id: file.s3.object.key,
+          const params = formatParams({
+            s3Object,
+            key
+          })
+          return await elasticSearch.createOrUpdate({
+            id: key,
             params
           })
         } catch (error) {

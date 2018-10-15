@@ -4,25 +4,18 @@ import elasticSearch from 'services/elastic-search'
 
 export default async (event) => {
   if (event.Records.length) {
-    await event.Records.reduce(async (previousJob, file) => {
-      await previousJob
-      try {
-        await elasticSearch.remove({
-          index: 'media',
-          type: 'media',
-          id: file.s3.object.key
-        })
-      } catch (error) {
-        return {
-          statusCode: 500,
-          body: serializeError(error)
+    await event.Records.reduce(
+      async (previousJob, file) => {
+        await previousJob
+        const { key } = file.s3.object
+        try {
+          return await elasticSearch.remove({ id: key })
+        } catch (error) {
+          return { statusCode: 500, body: serializeError(error) }
         }
-      }
-    })
-  } else {
-    return {
-      statusCode: 500,
-      body: event
-    }
+       }, Promise.resolve()
+     )
+   } else {
+     return { statusCode: 500, body: event }
   }
 }

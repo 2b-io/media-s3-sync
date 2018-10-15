@@ -1,8 +1,17 @@
 export default {
-  key: { type: "text" },
-  originUrl: { type: "text" },
-  contentType: { type: "text" },
-  eTag: { type: "text" },
-  lastModified: { type: "date" },
-  contentLength: { type: "text" }
+  key: {
+    type: 'text'
+  },
+  originUrl: {
+    type: 'text'
+  },
+  contentType: {
+    type: 'keyword'
+  },
+  lastModified: {
+    type: 'date'
+  },
+  contentLength: {
+    type: 'long'
+  }
 }
