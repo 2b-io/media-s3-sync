@@ -11,7 +11,7 @@ export default async (event) => {
         try {
           return await elasticSearch.remove({ id: key })
         } catch (error) {
-          return { statusCode: 500, body: serializeError(error) }
+          console.log(serializeError(error))
         }
        }, Promise.resolve()
      )

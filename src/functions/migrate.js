@@ -25,7 +25,9 @@ const fetchPage = async ({ prefix, maxKeys, nextToken }) => {
 
       try {
         const s3Object = await media.head({ key })
-        const paramsElasticSearch = formatParams({ s3Object, key })
+        const identifier = key.split("/")[1]
+        const preset = key.split("/").length > 3 ? key.split("/")[4] : null
+        const paramsElasticSearch = formatParams({ s3Object, key, identifier, preset })
         await elasticSearch.createOrUpdate({
           id: key,
           params: paramsElasticSearch
