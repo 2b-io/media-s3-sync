@@ -1,6 +1,6 @@
 export default {
   identifier: {
-    type: 'text'
+    type: 'keyword'
   },
   key: {
     type: 'text'

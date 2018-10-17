@@ -1,5 +1,3 @@
-import serializeError from 'serialize-error'
-
 import formatParams from './format-params'
 import mediaMapping from 'mapping/media'
 import config from 'infrastructure/config'
@@ -19,21 +17,16 @@ export default async (event) => {
           const s3Object = await media.head({
             key
           })
-          const identifier = key.split("/")[1]
-          //  check file origin
-          const preset = key.split("/").length > 2 ? key.split("/")[3] : null
           const params = formatParams({
             s3Object,
-            key,
-            identifier,
-            preset
+            key
           })
           return await elasticSearch.createOrUpdate({
             id: key,
             params
           })
         } catch (error) {
-          console.log(serializeError(error))
+          console.error(error)
         }
       },
       Promise.resolve()
