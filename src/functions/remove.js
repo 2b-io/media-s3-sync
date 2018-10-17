@@ -1,5 +1,3 @@
-import serializeError from 'serialize-error'
-
 import elasticSearch from 'services/elastic-search'
 
 export default async (event) => {
@@ -11,7 +9,7 @@ export default async (event) => {
         try {
           return await elasticSearch.remove({ id: key })
         } catch (error) {
-          return { statusCode: 500, body: serializeError(error) }
+          console.error(error)
         }
        }, Promise.resolve()
      )

@@ -31,7 +31,7 @@ const fetchPage = async ({ prefix, maxKeys, nextToken }) => {
           params: paramsElasticSearch
         })
       } catch (error) {
-        console.log(serializeError(error))
+        console.error(error)
       }
     },
     Promise.resolve()

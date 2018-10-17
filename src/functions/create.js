@@ -1,5 +1,3 @@
-import serializeError from 'serialize-error'
-
 import formatParams from './format-params'
 import mediaMapping from 'mapping/media'
 import config from 'infrastructure/config'
@@ -28,7 +26,7 @@ export default async (event) => {
             params
           })
         } catch (error) {
-          console.log(serializeError(error))
+          console.error(error)
         }
       },
       Promise.resolve()
