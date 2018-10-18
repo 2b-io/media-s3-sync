@@ -9,8 +9,7 @@ export default {
     },
     elasticSearch: {
       host: process.env.AWS_ELASTIC_SEARCH_HOST,
-      index: process.env.AWS_ELASTIC_SEARCH_INDEX,
-      type: process.env.AWS_ELASTIC_SEARCH_TYPE
+      prefix: process.env.AWS_ELASTIC_SEARCH_PREFIX
     }
   }
 }

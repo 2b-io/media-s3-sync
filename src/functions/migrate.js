@@ -5,19 +5,19 @@ import mediaMapping from 'mapping/media'
 import media from 'services/media'
 import elasticSearch from 'services/elastic-search'
 
-const fetchPage = async ({ prefix, maxKeys, nextToken }) => {
+const fetchPage = async ({ prefix, maxKeys = 10, continuationToken }) => {
   const params = {
     Prefix: prefix || null,
     MaxKeys: maxKeys,
-    ContinuationToken: nextToken || null
+    ContinuationToken: continuationToken || null
   }
   const {
-    Contents,
-    NextContinuationToken: _nextToken,
-    IsTruncated
+    Contents: contents,
+    NextContinuationToken: nextContinuationToken,
+    IsTruncated: isTruncated
   } = await media.list({ params })
 
-  await Contents.reduce(
+  await contents.reduce(
     async (previousJob, file) => {
       await previousJob
       const { Key: key } = file
@@ -37,30 +37,44 @@ const fetchPage = async ({ prefix, maxKeys, nextToken }) => {
     Promise.resolve()
   )
 
-  if (IsTruncated) {
-    return await fetchPage({
-      prefix,
-      maxKeys,
-      nextToken: _nextToken
-    })
-  } else {
-    console.log('FINISH')
-    return true
+  return {
+    isTruncated,
+    nextContinuationToken
   }
 }
 
 export default async (event, respond) => {
-  const { prefix } = JSON.parse(event.body)
-  await elasticSearch.initMapping({
-    params: mediaMapping
-  })
-
   try {
-    await fetchPage({ prefix, maxKeys: 10 })
+    const {
+      prefix,
+      continuationToken,
+      maxKeys
+    } = JSON.parse(event.body)
+    await elasticSearch.initMapping({
+      params: mediaMapping
+    })
+
+    const {
+      isTruncated,
+      nextContinuationToken
+    } = await fetchPage({ prefix, maxKeys, continuationToken })
+
+    if (!isTruncated) {
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          message: 'success',
+          isTruncated: false
+        })
+      }
+    }
+
     return {
-      statusCode: 200,
+      statusCode: 206,
       body: JSON.stringify({
-        message: "success"
+        message: 'partial success',
+        isTruncated: true,
+        nextContinuationToken
       })
     }
   } catch (error) {
