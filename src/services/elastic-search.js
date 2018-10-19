@@ -1,18 +1,20 @@
 import elasticSearch from 'infrastructure/elastic-search'
-
 import config from 'infrastructure/config'
+
+const INDEX_NAME = `${ config.aws.elasticSearch.prefix }media`
+const TYPE_NAME = `${ config.aws.elasticSearch.prefix }media`
 
 export default {
   async remove({ id }) {
     return await elasticSearch.delete({
-      index: config.aws.elasticSearch.index,
-      type: config.aws.elasticSearch.type,
+      index: INDEX_NAME,
+      type: TYPE_NAME,
       id
     })
   },
   async initMapping({ params }) {
     const indexExists = await elasticSearch.indices.exists({
-      index: config.aws.elasticSearch.index
+      index: INDEX_NAME
     })
 
     if (indexExists) {
@@ -20,12 +22,12 @@ export default {
     }
 
     await elasticSearch.indices.create({
-      index: config.aws.elasticSearch.index
+      index: INDEX_NAME
     })
 
     return await elasticSearch.indices.putMapping({
-      index: config.aws.elasticSearch.index,
-      type: config.aws.elasticSearch.type,
+      index: INDEX_NAME,
+      type: TYPE_NAME,
       body: {
         properties: params
       }
@@ -33,15 +35,15 @@ export default {
   },
   async createOrUpdate({ id, params }) {
     const objectExists = await elasticSearch.exists({
-      index: config.aws.elasticSearch.index,
-      type: config.aws.elasticSearch.type,
+      index: INDEX_NAME,
+      type: TYPE_NAME,
       id
     })
 
     if (objectExists) {
       return await elasticSearch.update({
-        index: config.aws.elasticSearch.index,
-        type: config.aws.elasticSearch.type,
+        index: INDEX_NAME,
+        type: TYPE_NAME,
         id,
         body: {
           doc: params
@@ -49,12 +51,11 @@ export default {
       })
     } else {
       return await elasticSearch.create({
-        index: config.aws.elasticSearch.index,
-        type: config.aws.elasticSearch.type,
+        index: INDEX_NAME,
+        type: TYPE_NAME,
         id,
         body: params
       })
     }
   }
-
 }

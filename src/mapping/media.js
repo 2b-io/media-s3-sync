@@ -3,10 +3,10 @@ export default {
     type: 'keyword'
   },
   key: {
-    type: 'text'
+    type: 'keyword',
   },
   originUrl: {
-    type: 'text'
+    type: 'keyword',
   },
   preset:{
     type: 'keyword'
