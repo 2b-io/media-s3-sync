@@ -1,20 +1,19 @@
 import elasticSearch from 'infrastructure/elastic-search'
 import config from 'infrastructure/config'
 
-const INDEX_NAME = `${ config.aws.elasticSearch.prefix }media`
 const TYPE_NAME = `${ config.aws.elasticSearch.prefix }media`
 
 export default {
-  async remove({ id }) {
+  async remove(index, id) {
     return await elasticSearch.delete({
-      index: INDEX_NAME,
+      index,
       type: TYPE_NAME,
       id
     })
   },
-  async initMapping({ params }) {
+  async initMapping(index, mapping) {
     const indexExists = await elasticSearch.indices.exists({
-      index: INDEX_NAME
+      index
     })
 
     if (indexExists) {
@@ -22,27 +21,27 @@ export default {
     }
 
     await elasticSearch.indices.create({
-      index: INDEX_NAME
+      index
     })
 
     return await elasticSearch.indices.putMapping({
-      index: INDEX_NAME,
+      index,
       type: TYPE_NAME,
       body: {
-        properties: params
+        properties: mapping
       }
     })
   },
-  async createOrUpdate({ id, params }) {
+  async createOrUpdate(index, id, params) {
     const objectExists = await elasticSearch.exists({
-      index: INDEX_NAME,
+      index,
       type: TYPE_NAME,
       id
     })
 
     if (objectExists) {
       return await elasticSearch.update({
-        index: INDEX_NAME,
+        index,
         type: TYPE_NAME,
         id,
         body: {
@@ -51,7 +50,7 @@ export default {
       })
     } else {
       return await elasticSearch.create({
-        index: INDEX_NAME,
+        index,
         type: TYPE_NAME,
         id,
         body: params
