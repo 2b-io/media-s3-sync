@@ -1,7 +1,7 @@
 import serializeError from 'serialize-error'
 
 import config from 'infrastructure/config'
-import formatParams from './format-params'
+import formatParams from 'functions/format-params'
 import mediaMapping from 'mapping/media'
 import media from 'services/media'
 import elasticSearch from 'services/elastic-search'
@@ -47,11 +47,10 @@ const fetchPage = async (prefix, maxKeys = 10, continuationToken) => {
   }
 }
 
-export default async (event, respond) => {
+export default async (event, continuationToken) => {
   try {
     const {
       projectIdentifier,
-      continuationToken,
       maxKeys
     } = JSON.parse(event.body)
     const prefix = `${ config.version }/${ projectIdentifier }`
