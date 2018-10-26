@@ -4,7 +4,7 @@ import config from 'infrastructure/config'
 import s3 from 'infrastructure/s3'
 
 export default {
-  async head({ key }) {
+  async head(key) {
     return await s3.headObject({
       Bucket: config.aws.s3.bucket,
       Key: key

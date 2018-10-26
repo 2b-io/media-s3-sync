@@ -2,6 +2,7 @@ import mediaMapping from 'mapping/media'
 import config from 'infrastructure/config'
 import elasticSearch from 'services/elastic-search'
 import media from 'services/media'
+import retry from 'services/retry'
 import s3toES from 'services/s3-to-es'
 
 export default async (event) => {
@@ -16,9 +17,7 @@ export default async (event) => {
             projectIdentifier,
             mediaMapping
           )
-          const s3Object = await media.head({
-            key
-          })
+          const s3Object = await retry(10)(media.head)(key)
           const params = s3toES({
             s3Object,
             key

@@ -4,6 +4,7 @@ import config from 'infrastructure/config'
 import mediaMapping from 'mapping/media'
 import elasticSearch from 'services/elastic-search'
 import media from 'services/media'
+import retry from 'services/retry'
 import s3toES from 'services/s3-to-es'
 
 const fetchPage = async ({
@@ -30,7 +31,7 @@ const fetchPage = async ({
       console.log('PUSH_FILE -> ', key)
 
       try {
-        const s3Object = await media.head({ key })
+        const s3Object = await retry(10)(media.head)(key)
         const paramsElasticSearch = s3toES({ s3Object, key })
 
         await elasticSearch.createOrUpdate(
