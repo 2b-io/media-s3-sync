@@ -9,8 +9,7 @@ import s3toES from 'services/s3-to-es'
 const fetchPage = async ({
   prefix,
   maxKeys = 10,
-  continuationToken,
-  migrationVersion
+  continuationToken
 }) => {
   const params = {
     Prefix: prefix || null,
@@ -36,10 +35,8 @@ const fetchPage = async ({
 
         await elasticSearch.createOrUpdate(
           projectIdentifier,
-          key, {
-            ...paramsElasticSearch,
-            migrationVersion
-          }
+          key,
+          paramsElasticSearch
         )
       } catch (error) {
         console.error(error)
@@ -59,8 +56,7 @@ export default async (event, respond) => {
     const {
       projectIdentifier,
       continuationToken,
-      maxKeys,
-      migrationVersion
+      maxKeys
     } = JSON.parse(event.body)
     const prefix = `${ config.version }/${ projectIdentifier }`
     await elasticSearch.initMapping(
@@ -74,8 +70,7 @@ export default async (event, respond) => {
     } = await fetchPage({
       prefix,
       maxKeys,
-      continuationToken,
-      migrationVersion
+      continuationToken
     })
 
     if (!isTruncated) {
