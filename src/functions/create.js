@@ -10,7 +10,7 @@ export default async (event) => {
       async (previousJob, file) => {
         await previousJob
         const { key } = file.s3.object
-        const projectIdentifier = key.split('/')[1]
+        const projectIdentifier = key.split('/')[ 1 ]
         try {
           await elasticSearch.initMapping(
             projectIdentifier,
