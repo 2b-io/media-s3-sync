@@ -10,10 +10,12 @@ export default async (event) => {
       async (previousJob, file) => {
         await previousJob
         const { key } = file.s3.object
+        const projectIdentifier = key.split('/')[ 1 ]
         try {
-          await elasticSearch.initMapping({
-            params: mediaMapping
-          })
+          await elasticSearch.initMapping(
+            projectIdentifier,
+            mediaMapping
+          )
           const s3Object = await media.head({
             key
           })
@@ -21,10 +23,11 @@ export default async (event) => {
             s3Object,
             key
           })
-          return await elasticSearch.createOrUpdate({
-            id: key,
+          return await elasticSearch.createOrUpdate(
+            projectIdentifier,
+            key,
             params
-          })
+          )
         } catch (error) {
           console.error(error)
         }

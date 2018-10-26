@@ -1,11 +1,12 @@
 import serializeError from 'serialize-error'
 
+import config from 'infrastructure/config'
 import formatParams from './format-params'
 import mediaMapping from 'mapping/media'
 import media from 'services/media'
 import elasticSearch from 'services/elastic-search'
 
-const fetchPage = async ({ prefix, maxKeys = 10, continuationToken }) => {
+const fetchPage = async (prefix, maxKeys = 10, continuationToken) => {
   const params = {
     Prefix: prefix || null,
     MaxKeys: maxKeys,
@@ -21,15 +22,18 @@ const fetchPage = async ({ prefix, maxKeys = 10, continuationToken }) => {
     async (previousJob, file) => {
       await previousJob
       const { Key: key } = file
+      const projectIdentifier = key.split('/')[1]
       console.log('PUSH_FILE -> ', key)
 
       try {
         const s3Object = await media.head({ key })
         const paramsElasticSearch = formatParams({ s3Object, key })
-        await elasticSearch.createOrUpdate({
-          id: key,
-          params: paramsElasticSearch
-        })
+
+        await elasticSearch.createOrUpdate(
+          projectIdentifier,
+          key,
+          paramsElasticSearch
+        )
       } catch (error) {
         console.error(error)
       }
@@ -46,18 +50,20 @@ const fetchPage = async ({ prefix, maxKeys = 10, continuationToken }) => {
 export default async (event, respond) => {
   try {
     const {
-      prefix,
+      projectIdentifier,
       continuationToken,
       maxKeys
     } = JSON.parse(event.body)
-    await elasticSearch.initMapping({
-      params: mediaMapping
-    })
+    const prefix = `${ config.version }/${ projectIdentifier }`
+    await elasticSearch.initMapping(
+      projectIdentifier,
+      mediaMapping
+    )
 
     const {
       isTruncated,
       nextContinuationToken
-    } = await fetchPage({ prefix, maxKeys, continuationToken })
+    } = await fetchPage(prefix, maxKeys, continuationToken)
 
     if (!isTruncated) {
       return {

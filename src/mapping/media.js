@@ -1,9 +1,9 @@
 export default {
-  identifier: {
-    type: 'keyword'
-  },
   key: {
     type: 'keyword',
+  },
+  origin: {
+    type: 'boolean',
   },
   originUrl: {
     type: 'keyword',
