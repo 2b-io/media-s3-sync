@@ -2,7 +2,7 @@ export default {
   key: {
     type: 'keyword',
   },
-  origin: {
+  isOrigin: {
     type: 'boolean',
   },
   originUrl: {
@@ -19,5 +19,8 @@ export default {
   },
   contentLength: {
     type: 'long'
+  },
+  migrationVersion: {
+    type: 'keyword'
   }
 }

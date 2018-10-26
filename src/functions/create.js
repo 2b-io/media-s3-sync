@@ -1,8 +1,8 @@
-import formatParams from './format-params'
 import mediaMapping from 'mapping/media'
 import config from 'infrastructure/config'
-import media from 'services/media'
 import elasticSearch from 'services/elastic-search'
+import media from 'services/media'
+import s3toES from 'services/s3-to-es'
 
 export default async (event) => {
   if (event.Records.length) {
@@ -19,7 +19,7 @@ export default async (event) => {
           const s3Object = await media.head({
             key
           })
-          const params = formatParams({
+          const params = s3toES({
             s3Object,
             key
           })

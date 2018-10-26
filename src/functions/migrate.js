@@ -1,12 +1,17 @@
 import serializeError from 'serialize-error'
 
 import config from 'infrastructure/config'
-import formatParams from './format-params'
 import mediaMapping from 'mapping/media'
-import media from 'services/media'
 import elasticSearch from 'services/elastic-search'
+import media from 'services/media'
+import s3toES from 'services/s3-to-es'
 
-const fetchPage = async (prefix, maxKeys = 10, continuationToken) => {
+const fetchPage = async ({
+  prefix,
+  maxKeys = 10,
+  continuationToken,
+  migrationVersion
+}) => {
   const params = {
     Prefix: prefix || null,
     MaxKeys: maxKeys,
@@ -27,12 +32,14 @@ const fetchPage = async (prefix, maxKeys = 10, continuationToken) => {
 
       try {
         const s3Object = await media.head({ key })
-        const paramsElasticSearch = formatParams({ s3Object, key })
+        const paramsElasticSearch = s3toES({ s3Object, key })
 
         await elasticSearch.createOrUpdate(
           projectIdentifier,
-          key,
-          paramsElasticSearch
+          key, {
+            ...paramsElasticSearch,
+            migrationVersion
+          }
         )
       } catch (error) {
         console.error(error)
@@ -52,7 +59,8 @@ export default async (event, respond) => {
     const {
       projectIdentifier,
       continuationToken,
-      maxKeys
+      maxKeys,
+      migrationVersion
     } = JSON.parse(event.body)
     const prefix = `${ config.version }/${ projectIdentifier }`
     await elasticSearch.initMapping(
@@ -63,7 +71,12 @@ export default async (event, respond) => {
     const {
       isTruncated,
       nextContinuationToken
-    } = await fetchPage(prefix, maxKeys, continuationToken)
+    } = await fetchPage({
+      prefix,
+      maxKeys,
+      continuationToken,
+      migrationVersion
+    })
 
     if (!isTruncated) {
       return {
@@ -86,7 +99,7 @@ export default async (event, respond) => {
   } catch (error) {
     return {
       statusCode: 500,
-      body: serializeError(error)
+      body: JSON.stringify(serializeError(error))
     }
   }
 }
