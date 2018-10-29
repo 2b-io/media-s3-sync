@@ -1,6 +1,6 @@
 {
   "name": "@media-network/s3-sync",
-  "version": "0.0.6",
+  "version": "1.0.0",
   "description": "Sync objects in S3 into ElasticSearch or Mongo in serverless way.",
   "main": "src/handler.js",
   "repository": {
