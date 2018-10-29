@@ -1,0 +1,45 @@
+{
+  "name": "@media-network/s3-sync",
+  "version": "1.0.0",
+  "description": "Sync objects in S3 into ElasticSearch or Mongo in serverless way.",
+  "main": "src/handler.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/media-network/media-s3-sync.git"
+  },
+  "keywords": [
+    "serverless",
+    "s3",
+    "aws"
+  ],
+  "author": "LongLH <d@dapps.me>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/media-network/media-s3-sync/issues"
+  },
+  "homepage": "https://github.com/media-network/media-s3-sync#readme",
+  "dependencies": {
+    "aws-sdk": "2.331.0",
+    "delay": "4.1.0",
+    "elasticsearch": "15.1.1",
+    "serialize-error": "2.1.0",
+    "serverless-plugin-existing-s3": "2.2.2"
+  },
+  "devDependencies": {
+    "babel-loader": "7.1.5",
+    "babel-plugin-transform-runtime": "6.23.0",
+    "babel-preset-env": "1.7.0",
+    "babel-preset-stage-2": "6.24.1",
+    "babel-register": "6.26.0",
+    "run.env": "1.0.2",
+    "serverless": "1.30.0",
+    "serverless-offline": "3.25.7",
+    "serverless-webpack": "5.2.0",
+    "webpack": "4.16.5",
+    "webpack-node-externals": "1.7.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "run.env serverless offline start"
+  }
+}
