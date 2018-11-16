@@ -25,9 +25,9 @@ functions:
       AWS_S3_SECRET_ACCESS_KEY: ${env:AWS_S3_SECRET_ACCESS_KEY}
       AWS_S3_BUCKET: ${env:AWS_S3_BUCKET}
       AWS_S3_REGION: ${env:AWS_S3_REGION}
+      AWS_S3_VERSION: ${env:AWS_S3_VERSION}
       AWS_ELASTIC_SEARCH_HOST: ${env:AWS_ELASTIC_SEARCH_HOST}
       AWS_ELASTIC_SEARCH_PREFIX: ${env:AWS_ELASTIC_SEARCH_PREFIX}
-      VERSION: ${env:VERSION}
 
   remove:
     handler: src/handler.remove
@@ -42,9 +42,9 @@ functions:
       AWS_S3_SECRET_ACCESS_KEY: ${env:AWS_S3_SECRET_ACCESS_KEY}
       AWS_S3_BUCKET: ${env:AWS_S3_BUCKET}
       AWS_S3_REGION: ${env:AWS_S3_REGION}
+      AWS_S3_VERSION: ${env:AWS_S3_VERSION}
       AWS_ELASTIC_SEARCH_HOST: ${env:AWS_ELASTIC_SEARCH_HOST}
       AWS_ELASTIC_SEARCH_PREFIX: ${env:AWS_ELASTIC_SEARCH_PREFIX}
-      VERSION: ${env:VERSION}
 
   migrate:
     handler: src/handler.migrate
@@ -58,9 +58,25 @@ functions:
       AWS_S3_SECRET_ACCESS_KEY: ${env:AWS_S3_SECRET_ACCESS_KEY}
       AWS_S3_BUCKET: ${env:AWS_S3_BUCKET}
       AWS_S3_REGION: ${env:AWS_S3_REGION}
+      AWS_S3_VERSION: ${env:AWS_S3_VERSION}
       AWS_ELASTIC_SEARCH_HOST: ${env:AWS_ELASTIC_SEARCH_HOST}
       AWS_ELASTIC_SEARCH_PREFIX: ${env:AWS_ELASTIC_SEARCH_PREFIX}
-      VERSION: ${env:VERSION}
+
+  clean:
+    handler: src/handler.clean
+    timeout: 300
+    events:
+      - http:
+          path: /clean
+          method: post
+    environment:
+      AWS_S3_ACCESS_KEY_ID: ${env:AWS_S3_ACCESS_KEY_ID}
+      AWS_S3_SECRET_ACCESS_KEY: ${env:AWS_S3_SECRET_ACCESS_KEY}
+      AWS_S3_BUCKET: ${env:AWS_S3_BUCKET}
+      AWS_S3_REGION: ${env:AWS_S3_REGION}
+      AWS_S3_VERSION: ${env:AWS_S3_VERSION}
+      AWS_ELASTIC_SEARCH_HOST: ${env:AWS_ELASTIC_SEARCH_HOST}
+      AWS_ELASTIC_SEARCH_PREFIX: ${env:AWS_ELASTIC_SEARCH_PREFIX}
 
 plugins:
   - serverless-webpack

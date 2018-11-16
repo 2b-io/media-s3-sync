@@ -23,15 +23,28 @@ const fetchPage = async ({
     IsTruncated: isTruncated
   } = await media.list({ params })
 
-  await contents.reduce(
+  const { expiredS3Objects } = await contents.reduce(
     async (previousJob, file) => {
-      await previousJob
-      const { Key: key } = file
-      const projectIdentifier = key.split('/')[1]
-      console.log('PUSH_FILE -> ', key)
+      const { expiredS3Objects } = await previousJob
 
       try {
+        const { Key: key } = file
+        const projectIdentifier = key.split('/')[1]
+        console.log('PUSH_FILE -> ', key)
+
         const s3Object = await retry(10)(media.head)(key)
+
+        // check expire
+        const { Expires: expires } = s3Object
+
+        if (!expires || expires < Date.now()) {
+          console.log(`${ key } IS EXPIRED...`)
+
+          return {
+            expiredS3Objects: [ ...expiredS3Objects, key ]
+          }
+        }
+
         const paramsElasticSearch = s3toES({ s3Object, key })
 
         await elasticSearch.createOrUpdate(
@@ -42,30 +55,46 @@ const fetchPage = async ({
       } catch (error) {
         console.error(error)
       }
+
+      return {
+        expiredS3Objects
+      }
     },
-    Promise.resolve()
+    Promise.resolve({
+      expiredS3Objects: []
+    })
   )
 
+  if (expiredS3Objects.length) {
+    const deleteResult = await media.delete(expiredS3Objects)
+
+    console.log(deleteResult)
+  }
+
   return {
+    expired: expiredS3Objects.length,
     isTruncated,
     nextContinuationToken
   }
 }
 
-export default async (event, respond) => {
+export default async (event) => {
   try {
     const {
       projectIdentifier,
       continuationToken,
       maxKeys
     } = JSON.parse(event.body)
-    const prefix = `${ config.version }/${ projectIdentifier }`
+
+    const prefix = `${ config.aws.s3.version }/${ projectIdentifier }`
+
     await elasticSearch.initMapping(
       projectIdentifier,
       mediaMapping
     )
 
     const {
+      expired,
       isTruncated,
       nextContinuationToken
     } = await fetchPage({
@@ -79,6 +108,7 @@ export default async (event, respond) => {
         statusCode: 200,
         body: JSON.stringify({
           message: 'success',
+          expired,
           isTruncated: false
         })
       }
@@ -88,6 +118,7 @@ export default async (event, respond) => {
       statusCode: 206,
       body: JSON.stringify({
         message: 'partial success',
+        expired,
         isTruncated: true,
         nextContinuationToken
       })

@@ -15,5 +15,15 @@ export default {
       Bucket: config.aws.s3.bucket,
       ...params
     }).promise()
+  },
+  async delete(keys) {
+    return await s3.deleteObjects({
+      Bucket: config.aws.s3.bucket,
+      Delete: {
+        Objects: keys.map(key => ({
+          Key: key
+        }))
+      }
+    }).promise()
   }
 }

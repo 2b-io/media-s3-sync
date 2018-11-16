@@ -57,5 +57,17 @@ export default {
         body: params
       })
     }
+  },
+  async delete(index, params) {
+    const result = await elasticSearch.deleteByQuery({
+      index: `${ PREFIX }-${ index }`,
+      type: TYPE_NAME,
+      size: params.size,
+      body: params.body
+    })
+
+    return {
+      deleted: result.deleted
+    }
   }
 }
