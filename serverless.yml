@@ -3,6 +3,7 @@ service: media-s3-sync
 provider:
   name: aws
   runtime: nodejs8.10
+  memorySize: 128
   iamRoleStatements:
     - Effect: Allow
       Action:
