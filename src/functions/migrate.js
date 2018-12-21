@@ -1,17 +1,16 @@
 import serializeError from 'serialize-error'
 
 import config from 'infrastructure/config'
-import mediaMapping from 'mapping/media'
-import elasticSearch from 'services/elastic-search'
+import api from 'services/api'
 import media from 'services/media'
 import retry from 'services/retry'
-import s3toES from 'services/s3-to-es'
+import formatObjects3toES from 'services/format-object-s3-to-es'
 
-const fetchPage = async ({
+const fetchPage = async (
   prefix,
   maxKeys = 10,
   continuationToken
-}) => {
+) => {
   const params = {
     Prefix: prefix || null,
     MaxKeys: maxKeys,
@@ -45,13 +44,9 @@ const fetchPage = async ({
           }
         }
 
-        const paramsElasticSearch = s3toES({ s3Object, key })
+        const objectElasticsearch = formatObjects3toES({ s3Object, key })
 
-        await elasticSearch.createOrUpdate(
-          projectIdentifier,
-          key,
-          paramsElasticSearch
-        )
+        return await api.call('post', `/projects/${ projectIdentifier }/files`, objectElasticsearch)
       } catch (error) {
         console.error(error)
       }
@@ -88,26 +83,21 @@ export default async (event) => {
 
     const prefix = `${ config.aws.s3.version }/${ projectIdentifier }`
 
-    await elasticSearch.initMapping(
-      projectIdentifier,
-      mediaMapping
-    )
-
     const {
       expired,
       isTruncated,
       nextContinuationToken
-    } = await fetchPage({
+    } = await fetchPage(
       prefix,
       maxKeys,
       continuationToken
-    })
+    )
 
     if (!isTruncated) {
       return {
         statusCode: 200,
         body: JSON.stringify({
-          message: 'success',
+          message: 'SUCCESS',
           expired,
           isTruncated: false
         })
@@ -117,7 +107,7 @@ export default async (event) => {
     return {
       statusCode: 206,
       body: JSON.stringify({
-        message: 'partial success',
+        message: 'PARTIAL_SUCCESS',
         expired,
         isTruncated: true,
         nextContinuationToken
