@@ -14,12 +14,31 @@ export default async (event) => {
 
         try {
           const s3Object = await retry(10)(media.head)(key)
-          const objectElasticsearch = formatObjects3toES({
-            s3Object,
-            key
-          })
+          const objectElasticsearch = formatObjects3toES(s3Object, key)
 
-          return await api.call('post', `/projects/${ projectIdentifier }/files`, objectElasticsearch)
+          const checkExistsObject = api.call(
+            'head',
+            `/projects/${ projectIdentifier }/files`,
+            ${ encodeURIComponent(objectElasticsearch.key) }
+          )
+
+          if (checkExistsObject) {
+            const {
+              originUrl,
+              expires,
+              isOrigin,
+              lastModified,
+              lastSynchronized
+            } = objectElasticsearch
+
+            return await api.call(
+              'put',
+              `/projects/${ projectIdentifier }/files`,
+              { originUrl, expires, isOrigin, lastModified, lastSynchronized }
+            )
+          }
+
+          return await api.call('post', `/projects/${ projectIdentifier }/files`, { ...objectElasticsearch })
         } catch (error) {
           console.error(error)
         }
