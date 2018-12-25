@@ -1,4 +1,4 @@
-export default ({ s3Object, key }) => {
+export default (s3Object, key) => {
   // key origin = `version/identifier/hashedURL`
   // key target = `version/identifier/hashedURL/presetHash/mode_widthxheight.ext`
   // key target = `version/identifier/hashedURL/presetHash.ext (eg. image/svg+xml)`
