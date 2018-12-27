@@ -18,8 +18,7 @@ export default async (event) => {
 
           const checkExistsObject = api.call(
             'head',
-            `/projects/${ projectIdentifier }/files`,
-            ${ encodeURIComponent(objectElasticsearch.key) }
+            `/projects/${ projectIdentifier }/files/${ encodeURIComponent(objectElasticsearch.key) }`
           )
 
           if (checkExistsObject) {
