@@ -7,5 +7,7 @@ export default {
       secretAccessKey: process.env.AWS_S3_SECRET_ACCESS_KEY,
       version: process.env.AWS_S3_VERSION
     }
-  }
+  },
+  apiUrl: process.env.API_URL,
+  apiSecretKey: process.env.API_SECRET_KEY,
 }

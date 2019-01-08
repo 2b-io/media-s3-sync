@@ -8,7 +8,7 @@ const call = async (method, path, body) => {
   const response = await request(method, requestPath)
     .timeout(ms('30s'))
     .set('content-type', 'application/json')
-    .set('authorization', 'MEDIA_CDN app=s3-sync')
+    .set('authorization', `MEDIA_CDN app=${ config.apiSecretKey }`)
     .send(body)
 
   return response.body
