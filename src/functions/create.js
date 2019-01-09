@@ -6,6 +6,8 @@ import formatObjects3toES from 'services/format-object-s3-to-es'
 
 export default async (event) => {
   if (event.Records.length) {
+    const lastSynchronized = new Date().toISOString()
+
     await event.Records.reduce(
       async (previousJob, file) => {
         await previousJob
@@ -14,30 +16,24 @@ export default async (event) => {
 
         try {
           const s3Object = await retry(10)(media.head)(key)
-          const objectElasticsearch = formatObjects3toES(s3Object, key)
+          const objectElasticsearch = formatObjects3toES(s3Object, key, lastSynchronized)
+          try {
+            await api.call(
+              'head',
+              `/projects/${ projectIdentifier }/files/${ encodeURIComponent(key) }`
+            )
 
-          const checkExistsObject = api.call(
-            'head',
-            `/projects/${ projectIdentifier }/files/${ encodeURIComponent(objectElasticsearch.key) }`
-          )
+            const { originUrl, expires, isOrigin, lastModified } = objectElasticsearch
 
-          if (checkExistsObject) {
-            const {
-              originUrl,
-              expires,
-              isOrigin,
-              lastModified,
-              lastSynchronized
-            } = objectElasticsearch
-
-            return await api.call(
+            await api.call(
               'put',
-              `/projects/${ projectIdentifier }/files`,
+              `/projects/${ projectIdentifier }/files/${ encodeURIComponent(key) }`,
               { originUrl, expires, isOrigin, lastModified, lastSynchronized }
             )
+          } catch (e) {
+            console.log('FILE NOT FOUND')
+            await api.call('post', `/projects/${ projectIdentifier }/files`, { ...objectElasticsearch })
           }
-
-          return await api.call('post', `/projects/${ projectIdentifier }/files`, { ...objectElasticsearch })
         } catch (error) {
           console.error(error)
         }
