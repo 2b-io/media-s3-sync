@@ -1,4 +1,4 @@
-export default (s3Object, key) => {
+export default (s3Object, key, lastSynchronized) => {
   // key origin = `version/identifier/hashedURL`
   // key target = `version/identifier/hashedURL/presetHash/mode_widthxheight.ext`
   // key target = `version/identifier/hashedURL/presetHash.ext (eg. image/svg+xml)`
@@ -13,7 +13,7 @@ export default (s3Object, key) => {
     expires: s3Object.Expires,
     isOrigin: s3Object.Metadata && s3Object.Metadata[ 'origin-url' ] ? true : false,
     lastModified: s3Object.LastModified,
-    lastSynchronized: new Date(),
+    lastSynchronized,
     originUrl: s3Object.Metadata && s3Object.Metadata[ 'origin-url' ] || null
   }
 }

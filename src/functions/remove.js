@@ -8,7 +8,7 @@ export default async (event) => {
         const { key } = file.s3.object
         const projectIdentifier = key.split('/')[ 1 ]
         try {
-          return await api.call('delete', `/projects/${ projectIdentifier }/files/${ key }`)
+          return await api.call('delete', `/projects/${ projectIdentifier }/files/${ encodeURIComponent(key) }`)
         } catch (error) {
           console.error(error)
         }
